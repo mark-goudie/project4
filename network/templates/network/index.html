@@ -1,5 +1,16 @@
 {% extends "network/layout.html" %}
 
 {% block body %}
-    TODO
+
+<div class="container">
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="post">New Post</label>
+            <textarea class="form-control" id="post" name="post" placeholder="What's on your mind?" rows="3"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Post</button>
+    </form>
+</div>
+    
 {% endblock %}
