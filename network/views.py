@@ -4,8 +4,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse
 
-from .models import User
-from .models import Post
+from .models import User, Post, UserExtended
 
 
 def index(request):
@@ -77,10 +76,11 @@ def all_posts(request):
 
 def profile(request, username):
     user = User.objects.get(username=username)
+    user_extended, created = UserExtended.objects.get_or_create(user=user)
     posts = Post.objects.filter(user=user).order_by('-timestamp')
-    followers = user.userextended.followers.count()
+    followers = user_extended.followers.count()
     following = UserExtended.objects.filter(followers=user).count()
-    is_following = request.user in user.userextended.followers.all()
+    is_following = request.user in user_extended.followers.all()
 
     context = {
         'user_profile': user,
@@ -91,13 +91,14 @@ def profile(request, username):
     }
     return render(request, 'network/profile.html', context)
 
+
 def following(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse("login"))
 
-    # Assuming you have a way to track who the user is following
-    # For example, if you have a 'following' ManyToMany field in your User model
-    following_users = request.user.following.all()
+    # Access the 'following' attribute from the User model
+    following_users = request.user.userextended.followers.all()
     posts = Post.objects.filter(user__in=following_users).order_by('-timestamp')
 
     return render(request, "network/following.html", {"posts": posts})
+
