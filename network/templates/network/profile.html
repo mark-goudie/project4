@@ -3,7 +3,7 @@
 <p>Following: {{ following }}</p>
 
 {% if user != user_profile %}
-<form method="post" action="{% url 'profile' user_profile.username %}">
+<form method="post" action="{% url 'profile' username=user_profile.username %}">
   {% csrf_token %}
   <button type="submit" name="follow">
     {% if is_following %}Unfollow{% else %}Follow{% endif %}

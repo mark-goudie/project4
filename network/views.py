@@ -90,3 +90,14 @@ def profile(request, username):
         'is_following': is_following
     }
     return render(request, 'network/profile.html', context)
+
+def following(request):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse("login"))
+
+    # Assuming you have a way to track who the user is following
+    # For example, if you have a 'following' ManyToMany field in your User model
+    following_users = request.user.following.all()
+    posts = Post.objects.filter(user__in=following_users).order_by('-timestamp')
+
+    return render(request, "network/following.html", {"posts": posts})
