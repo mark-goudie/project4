@@ -6,7 +6,7 @@
     {% for post in posts %}
     <div class="post">
         <h3>{{ post.user.username }}</h3>
-        <p>{{ post.content }}</p>
+        <p>{{ post.post }}</p> <!-- Make sure to use the correct field name for the post content -->
         <p>Posted on: {{ post.timestamp }}</p>
         <!-- Add more post details as needed -->
     </div>
@@ -14,4 +14,19 @@
     <p>No posts to display.</p>
     {% endfor %}
 </div>
+
+<div class="pagination">
+    {% if posts.has_previous %}
+        <a href="?page=1">First</a>
+        <a href="?page={{ posts.previous_page_number }}">Previous</a>
+    {% endif %}
+    <span class="current">
+        Page {{ posts.number }} of {{ posts.paginator.num_pages }}.
+    </span>
+    {% if posts.has_next %}
+        <a href="?page={{ posts.next_page_number }}">Next</a>
+        <a href="?page={{ posts.paginator.num_pages }}">Last</a>
+    {% endif %}
+</div>
+
 {% endblock %}

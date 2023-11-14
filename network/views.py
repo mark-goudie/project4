@@ -3,6 +3,7 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse
+from django.core.paginator import Paginator
 
 from .models import User, Post, UserExtended
 
@@ -77,7 +78,12 @@ def all_posts(request):
 def profile(request, username):
     user = User.objects.get(username=username)
     user_extended, created = UserExtended.objects.get_or_create(user=user)
-    posts = Post.objects.filter(user=user).order_by('-timestamp')
+    posts_list = Post.objects.filter(user=user).order_by('-timestamp')
+    paginator = Paginator(posts_list, 10)  # Show 10 posts per page
+
+    page_number = request.GET.get('page')
+    posts = paginator.get_page(page_number)
+
     followers = user_extended.followers.count()
     following = UserExtended.objects.filter(followers=user).count()
     is_following = request.user in user_extended.followers.all()
@@ -92,13 +98,26 @@ def profile(request, username):
     return render(request, 'network/profile.html', context)
 
 
+
 def following(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse("login"))
 
-    # Access the 'following' attribute from the User model
     following_users = request.user.userextended.followers.all()
-    posts = Post.objects.filter(user__in=following_users).order_by('-timestamp')
+    posts_list = Post.objects.filter(user__in=following_users).order_by('-timestamp')
+    paginator = Paginator(posts_list, 10)  # Show 10 posts per page
+
+    page_number = request.GET.get('page')
+    posts = paginator.get_page(page_number)
 
     return render(request, "network/following.html", {"posts": posts})
 
+
+def all_posts(request):
+    posts_list = Post.objects.all().order_by('-timestamp')
+    paginator = Paginator(posts_list, 10)  # Show 10 posts per page
+
+    page_number = request.GET.get('page')
+    posts = paginator.get_page(page_number)
+
+    return render(request, "network/all_posts.html", {"posts": posts})
