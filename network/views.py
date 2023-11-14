@@ -70,3 +70,23 @@ def new_post(request):
         post.save()
         return redirect('index')
     return render(request, 'network/new_post.html')
+
+def all_posts(request):
+    posts = Post.objects.all().order_by('-timestamp')
+    return render(request, "network/all_posts.html", {"posts": posts})
+
+def profile(request, username):
+    user = User.objects.get(username=username)
+    posts = Post.objects.filter(user=user).order_by('-timestamp')
+    followers = user.userextended.followers.count()
+    following = UserExtended.objects.filter(followers=user).count()
+    is_following = request.user in user.userextended.followers.all()
+
+    context = {
+        'user_profile': user,
+        'posts': posts,
+        'followers': followers,
+        'following': following,
+        'is_following': is_following
+    }
+    return render(request, 'network/profile.html', context)
