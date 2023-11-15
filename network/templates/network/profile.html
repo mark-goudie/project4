@@ -1,6 +1,10 @@
+{% extends "network/layout.html" %}
+
 <h1>{{ user_profile.username }}'s Profile</h1>
 <p>Followers: {{ followers }}</p>
 <p>Following: {{ following }}</p>
+
+{% block body %}
 
 {% if user != user_profile %}
 <form method="post" action="{% url 'profile' username=user_profile.username %}">
@@ -40,3 +44,5 @@
         <a href="?page={{ posts.paginator.num_pages }}">Last</a>
     {% endif %}
 </div>
+
+{% endblock %}

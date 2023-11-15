@@ -13,7 +13,8 @@ import json
 
 
 def index(request):
-    return render(request, "network/index.html")
+    posts = Post.objects.all().order_by('-timestamp')
+    return render(request, "network/index.html", {"posts": posts})
 
 
 def login_view(request):
@@ -68,7 +69,9 @@ def register(request):
         return render(request, "network/register.html")
 
 def new_post(request):
-    if request.method == "POST":
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse("login"))
+    elif request.method == "POST":
         content = request.POST["post_content"]
         post = Post(post=content, user=request.user)
         post.save()
