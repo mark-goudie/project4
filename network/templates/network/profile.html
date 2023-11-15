@@ -1,48 +1,63 @@
 {% extends "network/layout.html" %}
 
-<h1>{{ user_profile.username }}'s Profile</h1>
-<p>Followers: {{ followers }}</p>
-<p>Following: {{ following }}</p>
-
 {% block body %}
 
-{% if user != user_profile %}
-<form method="post" action="{% url 'profile' username=user_profile.username %}">
-  {% csrf_token %}
-  <button type="submit" name="follow">
-    {% if is_following %}Unfollow{% else %}Follow{% endif %}
-  </button>
-</form>
-{% endif %}
-
-{% for post in posts %}
-<div class="post" id="post-{{ post.id }}">
-    <h3>{{ post.user.username }}</h3>
-    <div id="content-{{ post.id }}">
-        <p>{{ post.post }}</p> <!-- Make sure to use the correct field name for the post content -->
-    </div>
-    <p>Posted on: {{ post.timestamp }}</p>
-    <p>Likes: {{ post.likes.count }}</p> <!-- Assuming 'likes' is a ManyToManyField -->
+<div class="container mt-4">
+    <div class="card mb-4 shadow">
+        <div class="card-body">
+            <h1 class="card-title">{{ user_profile.username }}'s Profile</h1>
+            <h6 class="card-subtitle mb-2 text-muted">Followers: {{ followers }}</h6>
+            <h6 class="card-subtitle mb-2 text-muted">Following: {{ following }}</h6>
     
-    {% if user == post.user %}
-    <button onclick="editPost('{{ post.id }}')">Edit</button>
-    <button onclick="toggleLike('{{ post.id }}')">{{ post.likes.count }} Likes</button>
-    {% endif %}
-</div>
-{% endfor %}
+            {% if user != user_profile %}
+            <form method="post" action="{% url 'profile' username=user_profile.username %}">
+                {% csrf_token %}
+                <button type="submit" name="follow" class="btn btn-primary mt-2">
+                    {% if is_following %}Unfollow{% else %}Follow{% endif %}
+                </button>
+            </form>
+            {% endif %}
+        </div>
+    </div>    
 
-<div class="pagination">
-    {% if posts.has_previous %}
-        <a href="?page=1">First</a>
-        <a href="?page={{ posts.previous_page_number }}">Previous</a>
+    {% if user != user_profile %}
+    <form method="post" action="{% url 'profile' username=user_profile.username %}">
+      {% csrf_token %}
+      <button type="submit" name="follow" class="btn btn-primary">
+        {% if is_following %}Unfollow{% else %}Follow{% endif %}
+      </button>
+    </form>
     {% endif %}
-    <span class="current">
-        Page {{ posts.number }} of {{ posts.paginator.num_pages }}.
-    </span>
-    {% if posts.has_next %}
-        <a href="?page={{ posts.next_page_number }}">Next</a>
-        <a href="?page={{ posts.paginator.num_pages }}">Last</a>
-    {% endif %}
+
+    {% for post in posts %}
+    <div class="post card shadow mb-4">
+        <div class="card-body">
+            <h5 class="card-title">{{ post.user.username }}</h5>
+            <h6 class="card-subtitle mb-2 text-muted">Posted on: {{ post.timestamp }}</h6>
+            <p class="card-text">{{ post.post }}</p>
+            <p>Likes: {{ post.likes.count }}</p> <!-- Assuming 'likes' is a ManyToManyField -->
+            
+            {% if user == post.user %}
+            <button onclick="editPost('{{ post.id }}')" class="btn btn-secondary">Edit</button>
+            <button onclick="toggleLike('{{ post.id }}')" class="btn btn-secondary">{{ post.likes.count }} Likes</button>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+
+    <div class="pagination">
+        {% if posts.has_previous %}
+            <a href="?page=1" class="btn btn-outline-primary">First</a>
+            <a href="?page={{ posts.previous_page_number }}" class="btn btn-outline-primary">Previous</a>
+        {% endif %}
+        <span class="current">
+            Page {{ posts.number }} of {{ posts.paginator.num_pages }}.
+        </span>
+        {% if posts.has_next %}
+            <a href="?page={{ posts.next_page_number }}" class="btn btn-outline-primary">Next</a>
+            <a href="?page={{ posts.paginator.num_pages }}" class="btn btn-outline-primary">Last</a>
+        {% endif %}
+    </div>
 </div>
 
 {% endblock %}

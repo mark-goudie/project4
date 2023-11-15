@@ -2,32 +2,35 @@
 
 {% block body %}
 
-{% if user.is_authenticated %}
-    <div class="container">
-        <form method="post" action="{% url 'new_post' %}">
-            {% csrf_token %}
-            <div class="form-group">
-                <label for="post">New Post</label>
-                <textarea class="form-control" id="post" name="post_content" placeholder="What's on your mind?" rows="3"></textarea>
+<div class="container mt-4">
+    {% if user.is_authenticated %}
+        <div class="new-post mb-4">
+            <form method="post" action="{% url 'new_post' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="post" class="h4">New Post</label>
+                    <textarea class="form-control" id="post" name="post_content" placeholder="What's on your mind?" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Post</button>
+            </form>
+        </div>
+    {% endif %}
+
+    <div class="posts">
+        {% for post in posts %}
+            <div class="post card shadow mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">{{ post.user.username }}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">Posted on: {{ post.timestamp }}</h6>
+                    <p class="card-text">{{ post.post }}</p>
+                </div>
             </div>
-            <button type="submit" class="btn btn-primary">Post</button>
-        </form>
+        {% empty %}
+            <div class="alert alert-info" role="alert">
+                No posts to display.
+            </div>
+        {% endfor %}
     </div>
-{% endif %}
-
-<div class="posts">
-    {% for post in posts %}
-    <div class="post">
-        <h3>{{ post.user.username }}</h3>
-        <p>{{ post.post }}</p>
-        <p>Posted on: {{ post.timestamp }}</p>
-    </div>
-    {% empty %}
-    <div class="alert alert-info" role="alert">
-        No posts to display.
-    </div>
-    {% endfor %}
 </div>
-
 
 {% endblock %}
