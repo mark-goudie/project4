@@ -1,11 +1,15 @@
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.core.paginator import Paginator
+from django.views.decorators.csrf import csrf_exempt
 
 from .models import User, Post, UserExtended
+
+import json
 
 
 def index(request):
@@ -121,3 +125,33 @@ def all_posts(request):
     posts = paginator.get_page(page_number)
 
     return render(request, "network/all_posts.html", {"posts": posts})
+
+@login_required
+@csrf_exempt
+def update_post(request, post_id):
+    try:
+        post = Post.objects.get(pk=post_id, user=request.user)
+        data = json.loads(request.body)
+        post.content = data['content']
+        post.save()
+        return JsonResponse({"message": "Post updated successfully."}, status=200)
+    except Post.DoesNotExist:
+        return JsonResponse({"error": "Post not found or not authorized to edit."}, status=404)
+
+from django.http import JsonResponse
+
+def like_post(request, post_id):
+    if not request.user.is_authenticated:
+        return JsonResponse({"error": "Login required"}, status=401)
+
+    try:
+        post = Post.objects.get(pk=post_id)
+        if request.user in post.likes.all():
+            post.likes.remove(request.user)
+            liked = False
+        else:
+            post.likes.add(request.user)
+            liked = True
+        return JsonResponse({"likes": post.likes.count(), "liked": liked})
+    except Post.DoesNotExist:
+        return JsonResponse({"error": "Post not found"}, status=404)

@@ -12,11 +12,18 @@
 {% endif %}
 
 {% for post in posts %}
-<div class="post">
+<div class="post" id="post-{{ post.id }}">
     <h3>{{ post.user.username }}</h3>
-    <p>{{ post.post }}</p> <!-- Make sure to use the correct field name for the post content -->
+    <div id="content-{{ post.id }}">
+        <p>{{ post.post }}</p> <!-- Make sure to use the correct field name for the post content -->
+    </div>
     <p>Posted on: {{ post.timestamp }}</p>
     <p>Likes: {{ post.likes.count }}</p> <!-- Assuming 'likes' is a ManyToManyField -->
+    
+    {% if user == post.user %}
+    <button onclick="editPost('{{ post.id }}')">Edit</button>
+    <button onclick="toggleLike('{{ post.id }}')">{{ post.likes.count }} Likes</button>
+    {% endif %}
 </div>
 {% endfor %}
 
