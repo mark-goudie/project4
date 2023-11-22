@@ -185,4 +185,4 @@ def toggle_follow(request, username):
         else:
             user_extended.following.add(target_user)
 
-        return HttpResponseRedirect(request.META.get('HTTP_REFERER', 'redirect_if_referer_not_found'))
+        return redirect(request.META.get('HTTP_REFERER', 'default_redirect_url'))
