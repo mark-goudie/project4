@@ -179,4 +179,4 @@ def update_post(request, post_id):
         post.save()
         return JsonResponse({"message": "Post updated successfully."}, status=200)
     except Post.DoesNotExist:
-        return JsonResponse({"error": "Post not found or not authorized to edit."}, status=404)
+        return JsonResponse({"error": "Post not found or not authorised to edit."}, status=404)
