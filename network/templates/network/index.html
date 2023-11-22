@@ -25,7 +25,7 @@
                         {% if user.is_authenticated and post.user != request.user %}
                             <form method="post" action="{% url 'toggle_follow' post.user.username %}" class="d-inline">
                                 {% csrf_token %}
-                                <button type="submit" class="btn btn-success btn-sm {% if post.user in request.user.userextended.following.all %}btn-secondary{% else %}btn-primary{% endif %}">
+                                <button type="submit" class="btn btn-sm {% if post.user in request.user.userextended.following.all %}btn-warning{% else %}btn-success{% endif %}">
                                     {% if post.user in request.user.userextended.following.all %}
                                         Unfollow
                                     {% else %}

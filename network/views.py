@@ -90,25 +90,29 @@ def all_posts(request):
 def profile(request, username):
     user = User.objects.get(username=username)
     user_extended, created = UserExtended.objects.get_or_create(user=user)
+
+    # Retrieve posts by the user
     posts_list = Post.objects.filter(user=user).order_by('-timestamp')
     paginator = Paginator(posts_list, 10)  # Show 10 posts per page
-
     page_number = request.GET.get('page')
     posts = paginator.get_page(page_number)
 
-    followers = user_extended.followers.count()
-    following = UserExtended.objects.filter(followers=user).count()
+    # Calculate followers and following counts
+    followers_count = user_extended.followers.count()
+    following_count = user_extended.following.count()
+
+    # Check if the current user is following the profile user
     is_following = request.user in user_extended.followers.all()
 
     context = {
         'user_profile': user,
         'posts': posts,
-        'followers': followers,
-        'following': following,
+        'followers': followers_count,
+        'following': following_count,
         'is_following': is_following
     }
-    return render(request, 'network/profile.html', context)
 
+    return render(request, 'network/profile.html', context)
 
 
 def following(request):
