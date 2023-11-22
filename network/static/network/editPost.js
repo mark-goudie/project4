@@ -1,15 +1,19 @@
-function editPost(postId) {
+function editPost(postId, editButton) {
   // Hide the post content and edit button
-  document.getElementById("post-content-" + postId).style.display = "none";
-  this.style.display = "none"; // 'this' refers to the Edit button
+  var postContent = document.getElementById("post-content-" + postId);
+  if (postContent) {
+    postContent.style.display = "none";
+  }
+  editButton.style.display = "none";
 
   // Show the textarea and save button
-  var content = document.getElementById("post-content-" + postId).innerText;
   var editTextArea = document.getElementById("edit-content-" + postId);
   var saveButton = document.getElementById("save-button-" + postId);
-  editTextArea.style.display = "block";
-  saveButton.style.display = "block";
-  editTextArea.value = content;
+  if (editTextArea && saveButton) {
+    editTextArea.style.display = "block";
+    saveButton.style.display = "block";
+    editTextArea.value = postContent.innerText;
+  }
 }
 
 function savePost(postId) {
@@ -54,17 +58,31 @@ function getCookie(name) {
 }
 
 function toggleLike(postId) {
-  fetch(`/like/${postId}`)
+  const likeButton = document.getElementById(`like-btn-${postId}`);
+  const isLiked = likeButton.getAttribute("data-liked") === "true";
+
+  fetch(`/like/${postId}`, {
+    method: "POST",
+    headers: {
+      "X-CSRFToken": getCookie("csrftoken"),
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      like: !isLiked, // Toggle the like status
+    }),
+  })
     .then((response) => response.json())
     .then((data) => {
-      if (data.error) {
-        console.log(data.error);
+      if (data.liked) {
+        likeButton.classList.add("liked", "btn-primary");
+        likeButton.classList.remove("unliked", "btn-secondary");
+        likeButton.setAttribute("data-liked", "true");
       } else {
-        // Update the like button text with the new count
-        document.querySelector(
-          `#like-btn-${postId}`
-        ).innerText = `${data.likes} Likes`;
+        likeButton.classList.add("unliked", "btn-secondary");
+        likeButton.classList.remove("liked", "btn-primary");
+        likeButton.setAttribute("data-liked", "false");
       }
+      likeButton.innerHTML = `Like <span class="badge bg-secondary">${data.likes}</span>`;
     })
     .catch((error) => console.log(error));
 }

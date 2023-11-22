@@ -13,7 +13,12 @@ import json
 
 
 def index(request):
-    posts = Post.objects.all().order_by('-timestamp')
+    posts_list = Post.objects.all().order_by('-timestamp')
+    paginator = Paginator(posts_list, 10)
+
+    page_number = request.GET.get('page')
+    posts = paginator.get_page(page_number)
+
     return render(request, "network/index.html", {"posts": posts})
 
 
@@ -110,14 +115,24 @@ def following(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse("login"))
 
-    following_users = request.user.userextended.followers.all()
-    posts_list = Post.objects.filter(user__in=following_users).order_by('-timestamp')
-    paginator = Paginator(posts_list, 10)  # Show 10 posts per page
+    user_extended, created = UserExtended.objects.get_or_create(user=request.user)
+    following_users = user_extended.following.all()
 
+    # Debugging: Print the usernames of followed users
+    print("Following Users:", [user.username for user in following_users])
+
+    posts_list = Post.objects.filter(user__in=following_users).order_by('-timestamp')
+    
+    # Debugging: Check if any posts are returned
+    print("Number of Posts:", posts_list.count())
+
+    paginator = Paginator(posts_list, 10)
     page_number = request.GET.get('page')
     posts = paginator.get_page(page_number)
 
     return render(request, "network/following.html", {"posts": posts})
+
+
 
 
 def all_posts(request):
@@ -158,3 +173,16 @@ def like_post(request, post_id):
         return JsonResponse({"likes": post.likes.count(), "liked": liked})
     except Post.DoesNotExist:
         return JsonResponse({"error": "Post not found"}, status=404)
+
+@login_required
+def toggle_follow(request, username):
+    if request.method == "POST":
+        target_user = User.objects.get(username=username)
+        user_extended, created = UserExtended.objects.get_or_create(user=request.user)
+
+        if target_user in user_extended.following.all():
+            user_extended.following.remove(target_user)
+        else:
+            user_extended.following.add(target_user)
+
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER', 'redirect_if_referer_not_found'))

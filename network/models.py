@@ -14,8 +14,9 @@ class Post (models.Model):
         return f"{self.user} posted {self.post} on {self.timestamp}"
 
 class UserExtended(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='userextended')
-    followers = models.ManyToManyField(User, related_name='following', blank=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    following = models.ManyToManyField(User, related_name="followers")
+    followers = models.ManyToManyField(User, related_name='following')
 
     def __str__(self):
         return self.user.username

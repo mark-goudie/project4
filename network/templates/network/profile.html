@@ -10,54 +10,74 @@
             <h6 class="card-subtitle mb-2 text-muted">Following: {{ following }}</h6>
     
             {% if user != user_profile %}
-            <form method="post" action="{% url 'profile' username=user_profile.username %}">
-                {% csrf_token %}
-                <button type="submit" name="follow" class="btn btn-primary mt-2">
-                    {% if is_following %}Unfollow{% else %}Follow{% endif %}
-                </button>
-            </form>
+                <form method="post" action="{% url 'profile' username=user_profile.username %}">
+                    {% csrf_token %}
+                    <button type="submit" name="follow" class="btn btn-primary mt-2">
+                        {% if is_following %}Unfollow{% else %}Follow{% endif %}
+                    </button>
+                </form>
             {% endif %}
         </div>
     </div>    
-
-    {% if user != user_profile %}
-    <form method="post" action="{% url 'profile' username=user_profile.username %}">
-      {% csrf_token %}
-      <button type="submit" name="follow" class="btn btn-primary">
-        {% if is_following %}Unfollow{% else %}Follow{% endif %}
-      </button>
-    </form>
-    {% endif %}
 
     {% for post in posts %}
     <div class="post card shadow mb-4">
         <div class="card-body">
             <h5 class="card-title">{{ post.user.username }}</h5>
             <h6 class="card-subtitle mb-2 text-muted">Posted on: {{ post.timestamp }}</h6>
-            <p class="card-text">{{ post.post }}</p>
-            <p>Likes: {{ post.likes.count }}</p> <!-- Assuming 'likes' is a ManyToManyField -->
+            <p id="post-content-{{ post.id }}" class="card-text">{{ post.post }}</p>
             
+            <!-- Textarea for editing -->
+            <textarea id="edit-content-{{ post.id }}" style="display: none;"></textarea>
+
+            <!-- Save button -->
+            <button id="save-button-{{ post.id }}" onclick="savePost('{{ post.id }}')" style="display: none;" class="btn btn-success btn-sm">Save</button>
+            <button id="like-btn-{{ post.id }}" type="button" class="btn btn-outline-primary btn-sm {% if request.user in post.likes.all %}liked{% else %}unliked{% endif %}" onclick="toggleLike('{{ post.id }}')" data-liked="{% if request.user in post.likes.all %}true{% else %}false{% endif %}">
+                Like <span class="badge bg-secondary">{{ post.likes.count }}</span>
+            </button>
+
             {% if user == post.user %}
-            <button onclick="editPost('{{ post.id }}')" class="btn btn-secondary">Edit</button>
-            <button onclick="toggleLike('{{ post.id }}')" class="btn btn-secondary">{{ post.likes.count }} Likes</button>
+                <button onclick="editPost('{{ post.id }}', this)" class="btn btn-warning btn-sm">Edit</button>
+                <!-- Like button here -->
             {% endif %}
         </div>
     </div>
-    {% endfor %}
+{% endfor %}
 
-    <div class="pagination">
+
+<nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
         {% if posts.has_previous %}
-            <a href="?page=1" class="btn btn-outline-primary">First</a>
-            <a href="?page={{ posts.previous_page_number }}" class="btn btn-outline-primary">Previous</a>
+            <li class="page-item">
+                <a class="page-link" href="?page=1" aria-label="First">
+                    <span aria-hidden="true">&laquo;&laquo;</span>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ posts.previous_page_number }}" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
         {% endif %}
-        <span class="current">
-            Page {{ posts.number }} of {{ posts.paginator.num_pages }}.
-        </span>
+        <li class="page-item active">
+            <span class="page-link">
+                Page {{ posts.number }} of {{ posts.paginator.num_pages }}
+            </span>
+        </li>
+
         {% if posts.has_next %}
-            <a href="?page={{ posts.next_page_number }}" class="btn btn-outline-primary">Next</a>
-            <a href="?page={{ posts.paginator.num_pages }}" class="btn btn-outline-primary">Last</a>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ posts.next_page_number }}" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ posts.paginator.num_pages }}" aria-label="Last">
+                    <span aria-hidden="true">&raquo;&raquo;</span>
+                </a>
+            </li>
         {% endif %}
-    </div>
-</div>
+    </ul>
+</nav>
 
 {% endblock %}
