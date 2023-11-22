@@ -1,12 +1,10 @@
 function editPost(postId, editButton) {
-  // Hide the post content and edit button
   var postContent = document.getElementById("post-content-" + postId);
   if (postContent) {
     postContent.style.display = "none";
   }
   editButton.style.display = "none";
 
-  // Show the textarea and save button
   var editTextArea = document.getElementById("edit-content-" + postId);
   var saveButton = document.getElementById("save-button-" + postId);
   if (editTextArea && saveButton) {
@@ -19,14 +17,13 @@ function editPost(postId, editButton) {
 function savePost(postId) {
   var updatedContent = document.getElementById("edit-content-" + postId).value;
 
-  // Make an AJAX call to update the post
   fetch("/update_post/" + postId, {
     method: "POST",
     body: JSON.stringify({
       content: updatedContent,
     }),
     headers: {
-      "X-CSRFToken": getCookie("csrftoken"), // Function to get CSRF token
+      "X-CSRFToken": getCookie("csrftoken"),
       "Content-Type": "application/json",
     },
   })
@@ -38,6 +35,11 @@ function savePost(postId) {
       document.getElementById("post-content-" + postId).style.display = "block";
       document.getElementById("edit-content-" + postId).style.display = "none";
       document.getElementById("save-button-" + postId).style.display = "none";
+      document.getElementById(`edit-button-${postId}`).style.display =
+        "inline-block";
+    })
+    .catch((error) => {
+      console.log(error);
     });
 }
 
@@ -68,7 +70,7 @@ function toggleLike(postId) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      like: !isLiked, // Toggle the like status
+      like: !isLiked,
     }),
   })
     .then((response) => response.json())

@@ -46,24 +46,47 @@ body {
   font-size: 1rem;
 }
 
-/* Styles for the unliked state */
 .unliked {
-  background-color: grey; /* Default unliked color */
+  background-color: grey;
   color: whitesmoke;
 }
 
 .unliked:hover {
-  background-color: rgb(85, 85, 85); /* Slightly darker for hover */
+  background-color: rgb(85, 85, 85);
   color: whitesmoke;
 }
 
-/* Styles for the liked state */
 .liked {
-  background-color: #a41034; /* Default liked color */
+  background-color: #a41034;
   color: whitesmoke;
 }
 
 .liked:hover {
-  background-color: darkred; /* Slightly darker for hover */
+  background-color: darkred;
   color: whitesmoke;
+}
+
+.edit-textarea {
+  width: 100%;
+  margin-bottom: 10px;
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem;
+  padding: 0.375rem 0.75rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #495057;
+  background-color: #fff;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.edit-textarea:focus {
+  border-color: #80bdff;
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.button-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }

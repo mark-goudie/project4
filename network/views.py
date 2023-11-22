@@ -60,7 +60,6 @@ def register(request):
                 "message": "Passwords must match."
             })
 
-        # Attempt to create new user
         try:
             user = User.objects.create_user(username, email, password)
             user.save()
@@ -91,17 +90,14 @@ def profile(request, username):
     user = User.objects.get(username=username)
     user_extended, created = UserExtended.objects.get_or_create(user=user)
 
-    # Retrieve posts by the user
     posts_list = Post.objects.filter(user=user).order_by('-timestamp')
     paginator = Paginator(posts_list, 10)  # Show 10 posts per page
     page_number = request.GET.get('page')
     posts = paginator.get_page(page_number)
 
-    # Calculate followers and following counts
     followers_count = user_extended.followers.count()
     following_count = user_extended.following.count()
 
-    # Check if the current user is following the profile user
     is_following = request.user in user_extended.followers.all()
 
     context = {
@@ -122,12 +118,10 @@ def following(request):
     user_extended, created = UserExtended.objects.get_or_create(user=request.user)
     following_users = user_extended.following.all()
 
-    # Debugging: Print the usernames of followed users
     print("Following Users:", [user.username for user in following_users])
 
     posts_list = Post.objects.filter(user__in=following_users).order_by('-timestamp')
     
-    # Debugging: Check if any posts are returned
     print("Number of Posts:", posts_list.count())
 
     paginator = Paginator(posts_list, 10)
@@ -137,30 +131,14 @@ def following(request):
     return render(request, "network/following.html", {"posts": posts})
 
 
-
-
 def all_posts(request):
     posts_list = Post.objects.all().order_by('-timestamp')
-    paginator = Paginator(posts_list, 10)  # Show 10 posts per page
+    paginator = Paginator(posts_list, 10)  
 
     page_number = request.GET.get('page')
     posts = paginator.get_page(page_number)
 
     return render(request, "network/all_posts.html", {"posts": posts})
-
-@login_required
-@csrf_exempt
-def update_post(request, post_id):
-    try:
-        post = Post.objects.get(pk=post_id, user=request.user)
-        data = json.loads(request.body)
-        post.content = data['content']
-        post.save()
-        return JsonResponse({"message": "Post updated successfully."}, status=200)
-    except Post.DoesNotExist:
-        return JsonResponse({"error": "Post not found or not authorized to edit."}, status=404)
-
-from django.http import JsonResponse
 
 def like_post(request, post_id):
     if not request.user.is_authenticated:
@@ -190,3 +168,15 @@ def toggle_follow(request, username):
             user_extended.following.add(target_user)
 
         return redirect(request.META.get('HTTP_REFERER', 'default_redirect_url'))
+
+@login_required
+@csrf_exempt
+def update_post(request, post_id):
+    try:
+        post = Post.objects.get(pk=post_id, user=request.user)
+        data = json.loads(request.body)
+        post.post = data['content']
+        post.save()
+        return JsonResponse({"message": "Post updated successfully."}, status=200)
+    except Post.DoesNotExist:
+        return JsonResponse({"error": "Post not found or not authorized to edit."}, status=404)

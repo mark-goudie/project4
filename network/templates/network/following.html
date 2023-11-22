@@ -11,14 +11,13 @@
                 <h6 class="card-subtitle mb-2 text-muted">Posted on: {{ post.timestamp }}</h6>
                 <p class="card-text">{{ post.post }}</p>
                 
-                <!-- Button Group -->
+
                 <div class="button-group" style="display: flex;">
-                    <!-- Like Button -->
+
                     <button id="like-btn-{{ post.id }}" type="button" class="btn btn-sm {% if request.user in post.likes.all %}liked{% else %}unliked{% endif %}" onclick="toggleLike('{{ post.id }}')" data-liked="{% if request.user in post.likes.all %}true{% else %}false{% endif %}">
                         Like <span class="badge bg-secondary">{{ post.likes.count }}</span>
                     </button>
 
-                    <!-- Follow/Unfollow Button -->
                     <form action="{% url 'toggle_follow' post.user.username %}" method="post" style="margin-left: 10px;">
                         {% csrf_token %}
                         <button type="submit" class="btn btn-sm {% if post.user in request.user.userextended.following.all %}btn-warning{% else %}btn-success{% endif %}">
