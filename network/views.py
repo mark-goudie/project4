@@ -160,12 +160,15 @@ def like_post(request, post_id):
 def toggle_follow(request, username):
     if request.method == "POST":
         target_user = User.objects.get(username=username)
+        target_user_extended, created = UserExtended.objects.get_or_create(user=target_user)
         user_extended, created = UserExtended.objects.get_or_create(user=request.user)
 
         if target_user in user_extended.following.all():
             user_extended.following.remove(target_user)
+            target_user_extended.followers.remove(request.user)
         else:
             user_extended.following.add(target_user)
+            target_user_extended.followers.add(request.user)
 
         return redirect(request.META.get('HTTP_REFERER', 'default_redirect_url'))
 
