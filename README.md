@@ -14,6 +14,10 @@ Run the server: python3 manage.py runserver
 
 https://cs50.harvard.edu/web/2020/projects/4/network/
 
+## Youtube video
+
+https://youtu.be/pHy10YQXDRI
+
 ## Admin settings to test the project
 
 Superuser:
