@@ -15,8 +15,8 @@ class Post (models.Model):
 
 class UserExtended(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    following = models.ManyToManyField(User, related_name="followers")
-    followers = models.ManyToManyField(User, related_name='following')
+    following = models.ManyToManyField(User, related_name="following_user")
+    followers = models.ManyToManyField(User, related_name='followers_user')
 
     def __str__(self):
         return self.user.username
